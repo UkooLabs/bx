@@ -22,9 +22,8 @@ namespace bx
 {
 	int64_t getHPCounter()
 	{
-#if    BX_CRT_NONE
-		int64_t i64 = crt0::getHPCounter();
-#elif  BX_PLATFORM_WINDOWS \
+#if    BX_PLATFORM_WINDOWS \
+    || BX_PLATFORM_XBOX360 \
 	|| BX_PLATFORM_XBOXONE \
 	|| BX_PLATFORM_WINRT
 		LARGE_INTEGER li;
@@ -49,9 +48,8 @@ namespace bx
 
 	int64_t getHPFrequency()
 	{
-#if    BX_CRT_NONE
-		return INT64_C(1000000000);
-#elif  BX_PLATFORM_WINDOWS \
+#if    BX_PLATFORM_WINDOWS \
+	|| BX_PLATFORM_XBOX360 \
 	|| BX_PLATFORM_XBOXONE \
 	|| BX_PLATFORM_WINRT
 		LARGE_INTEGER li;

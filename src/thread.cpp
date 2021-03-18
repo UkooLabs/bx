@@ -32,8 +32,8 @@
 #	endif // BX_PLATFORM_
 #elif  BX_PLATFORM_WINDOWS \
 	|| BX_PLATFORM_WINRT   \
-	|| BX_PLATFORM_XBOXONE \
-	|| BX_PLATFORM_WINRT
+    || BX_PLATFORM_XBOX360 \
+	|| BX_PLATFORM_XBOXONE
 #	include <windows.h>
 #	include <limits.h>
 #	include <errno.h>
@@ -54,6 +54,7 @@ namespace bx
 		int32_t m_handle;
 #elif  BX_PLATFORM_WINDOWS \
 	|| BX_PLATFORM_WINRT   \
+	|| BX_PLATFORM_XBOX360 \
 	|| BX_PLATFORM_XBOXONE
 		static DWORD WINAPI threadFunc(LPVOID _arg);
 		HANDLE m_handle;
@@ -64,14 +65,8 @@ namespace bx
 #endif // BX_PLATFORM_
 	};
 
-#if BX_CRT_NONE
-	int32_t ThreadInternal::threadFunc(void* _arg)
-	{
-		Thread* thread = (Thread*)_arg;
-		int32_t result = thread->entry();
-		return result;
-	}
-#elif  BX_PLATFORM_WINDOWS \
+#if    BX_PLATFORM_WINDOWS \
+	|| BX_PLATFORM_XBOX360 \
 	|| BX_PLATFORM_XBOXONE \
 	|| BX_PLATFORM_WINRT
 	DWORD WINAPI ThreadInternal::threadFunc(LPVOID _arg)
@@ -109,6 +104,7 @@ namespace bx
 		ti->m_handle = INT32_MIN;
 #elif  BX_PLATFORM_WINDOWS \
 	|| BX_PLATFORM_WINRT   \
+	|| BX_PLATFORM_XBOX360 \
 	|| BX_PLATFORM_XBOXONE
 		ti->m_handle   = INVALID_HANDLE_VALUE;
 		ti->m_threadId = UINT32_MAX;
@@ -134,16 +130,9 @@ namespace bx
 		m_stackSize = _stackSize;
 
 		ThreadInternal* ti = (ThreadInternal*)m_internal;
-#if BX_CRT_NONE
-		ti->m_handle = crt0::threadCreate(&ti->threadFunc, _userData, m_stackSize, _name);
-
-		if (NULL == ti->m_handle)
-		{
-			return false;
-		}
-#elif  BX_PLATFORM_WINDOWS \
-	|| BX_PLATFORM_XBOXONE \
-	|| BX_PLATFORM_WINRT
+#if    BX_PLATFORM_WINDOWS \
+	|| BX_PLATFORM_XBOX360 \
+	|| BX_PLATFORM_XBOXONE
 		ti->m_handle = ::CreateThread(NULL
 				, m_stackSize
 				, (LPTHREAD_START_ROUTINE)ti->threadFunc
@@ -203,14 +192,12 @@ namespace bx
 	{
 		BX_ASSERT(m_running, "Not running!");
 		ThreadInternal* ti = (ThreadInternal*)m_internal;
-#if BX_CRT_NONE
-		crt0::threadJoin(ti->m_handle, NULL);
-#elif BX_PLATFORM_WINDOWS
+#if BX_PLATFORM_WINDOWS
 		WaitForSingleObject(ti->m_handle, INFINITE);
 		GetExitCodeThread(ti->m_handle, (DWORD*)&m_exitCode);
 		CloseHandle(ti->m_handle);
 		ti->m_handle = INVALID_HANDLE_VALUE;
-#elif BX_PLATFORM_WINRT || BX_PLATFORM_XBOXONE
+#elif BX_PLATFORM_WINRT || BX_PLATFORM_XBOX360 || BX_PLATFORM_XBOXONE
 		WaitForSingleObjectEx(ti->m_handle, INFINITE, FALSE);
 		CloseHandle(ti->m_handle);
 		ti->m_handle = INVALID_HANDLE_VALUE;

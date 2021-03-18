@@ -22,6 +22,7 @@
 #	include <pthread.h>
 #elif  BX_PLATFORM_WINDOWS \
 	|| BX_PLATFORM_WINRT   \
+	|| BX_PLATFORM_XBOX360 \
 	|| BX_PLATFORM_XBOXONE
 #	include <windows.h>
 #	include <errno.h>
@@ -29,57 +30,8 @@
 
 namespace bx
 {
-#if BX_CRT_NONE
-	struct State
-	{
-		enum Enum
-		{
-			Unlocked,
-			Locked,
-			Contested,
-		};
-	};
-
-	Mutex::Mutex()
-	{
-		BX_STATIC_ASSERT(sizeof(int32_t) <= sizeof(m_internal) );
-
-		uint32_t* futex = (uint32_t*)m_internal;
-		*futex = State::Unlocked;
-	}
-
-	Mutex::~Mutex()
-	{
-	}
-
-	void Mutex::lock()
-	{
-		uint32_t* futex = (uint32_t*)m_internal;
-
-		if (State::Unlocked == bx::atomicCompareAndSwap<uint32_t>(futex, State::Unlocked, State::Locked) )
-		{
-			return;
-		}
-
-		while (State::Unlocked != bx::atomicCompareAndSwap<uint32_t>(futex, State::Locked, State::Contested) )
-		{
-			crt0::futexWait(futex, State::Contested);
-		}
-	}
-
-	void Mutex::unlock()
-	{
-		uint32_t* futex = (uint32_t*)m_internal;
-
-		if (State::Contested == bx::atomicCompareAndSwap<uint32_t>(futex, State::Locked, State::Unlocked) )
-		{
-			crt0::futexWake(futex, State::Locked);
-		}
-	}
-
-#else
-
-#	if BX_PLATFORM_WINDOWS \
+#if    BX_PLATFORM_WINDOWS \
+	|| BX_PLATFORM_XBOX360 \
 	|| BX_PLATFORM_XBOXONE \
 	|| BX_PLATFORM_WINRT
 	typedef CRITICAL_SECTION pthread_mutex_t;
@@ -125,10 +77,11 @@ namespace bx
 
 		pthread_mutexattr_t attr;
 
-#	if BX_PLATFORM_WINDOWS \
+#if    BX_PLATFORM_WINDOWS \
+	|| BX_PLATFORM_XBOX360 \
 	|| BX_PLATFORM_XBOXONE \
 	|| BX_PLATFORM_WINRT
-#	else
+#else
 		pthread_mutexattr_init(&attr);
 		pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
 #	endif // BX_PLATFORM_

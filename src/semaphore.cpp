@@ -19,6 +19,7 @@
 #	include <time.h>
 #elif  BX_PLATFORM_WINDOWS \
 	|| BX_PLATFORM_WINRT   \
+	|| BX_PLATFORM_XBOX360 \
 	|| BX_PLATFORM_XBOXONE
 #	include <windows.h>
 #	include <limits.h>
@@ -42,6 +43,7 @@ namespace bx
 		int32_t m_count;
 #elif  BX_PLATFORM_WINDOWS \
 	|| BX_PLATFORM_WINRT   \
+	|| BX_PLATFORM_XBOX360 \
 	|| BX_PLATFORM_XBOXONE
 		HANDLE m_handle;
 #endif // BX_PLATFORM_
@@ -228,6 +230,7 @@ namespace bx
 
 #elif  BX_PLATFORM_WINDOWS \
 	|| BX_PLATFORM_WINRT   \
+	|| BX_PLATFORM_XBOX360 \
 	|| BX_PLATFORM_XBOXONE
 
 	Semaphore::Semaphore()

@@ -14,7 +14,8 @@
 #elif BX_PLATFORM_ANDROID
 #	include <android/log.h>
 #elif  BX_PLATFORM_WINDOWS \
-	|| BX_PLATFORM_WINRT   \
+	|| BX_PLATFORM_WINRT \
+    || BX_PLATFORM_XBOX360 \
 	|| BX_PLATFORM_XBOXONE
 extern "C" __declspec(dllimport) void __stdcall OutputDebugStringA(const char* _str);
 #elif BX_PLATFORM_IOS || BX_PLATFORM_OSX
@@ -64,7 +65,8 @@ namespace bx
 #	endif // BX_ANDROID_LOG_TAG
 		__android_log_write(ANDROID_LOG_DEBUG, BX_ANDROID_LOG_TAG, _out);
 #elif  BX_PLATFORM_WINDOWS \
-	|| BX_PLATFORM_WINRT   \
+	|| BX_PLATFORM_WINRT \
+    || BX_PLATFORM_XBOX360 \
 	|| BX_PLATFORM_XBOXONE
 		OutputDebugStringA(_out);
 #elif  BX_PLATFORM_IOS \
